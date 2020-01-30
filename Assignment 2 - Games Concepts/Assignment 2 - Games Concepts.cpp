@@ -5,6 +5,7 @@ using namespace tle;
 
 const float kGameSpeed = 0.5f;
 IModel* frog[3];
+const int carAmount = 4;
 IModel* car[carAmount];
 const float frogSize = 0.5;
 const float frogRadius = 5.04487f * frogSize;
@@ -48,7 +49,6 @@ float carMaxZ;
 
 //float carWidthRadius[carAmount];
 //float carLengthRadius[carAmount];
-const int carAmount = 4;
 float carWidthRadius = 2.79333f;
 float carLengthRadius = 5.9069f;
 int carXRange = 50;
