@@ -1,0 +1,16 @@
+Tree Length = 6.08856, Xradius = 3.04428
+Tree Width = 6.12785, Zradius = 3.063925
+
+where x is Length
+  and z is width
+
+
+frog[currentFrog]->SetSkin("frog_red.jpg");
+frog[currentFrog]->Scale(0.5);
+frogStateIdentifier[currentFrog] = dead;
+dummyModel->DetachFromParent();
+currentFrog++;
+frogStateIdentifier[currentFrog] = crossing;
+dummyModel->AttachToParent(frog[currentFrog]);
+collidedWithCar = !collidedWithCar;
+if (currentFrog > 2) game = over;

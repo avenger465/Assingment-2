@@ -1,8 +1,10 @@
 ﻿  Assignment 2 - Games Concepts.cpp
-d:\users\jmills14\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(81): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-d:\users\jmills14\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(122): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
-d:\users\jmills14\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(124): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
-d:\users\jmills14\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(137): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
-d:\users\jmills14\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(438): warning C4715: 'GameDecisions': not all control paths return a value
+d:\users\jmills14\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(111): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\users\jmills14\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(155): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
+d:\users\jmills14\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(157): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
+d:\users\jmills14\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(169): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
+d:\users\jmills14\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(177): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
+d:\users\jmills14\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(510): warning C4553: '==': operator has no effect; did you intend '='?
+d:\users\jmills14\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(613): warning C4715: 'GameDecisions': not all control paths return a value
   Assignment 2 - Games Concepts.vcxproj -> D:\Users\JMills14\Documents\GitHub\Assingment-2\Assignment 2 - Games Concepts\\Assignment 2 - Games ConceptsDebug.exe
   Assignment 2 - Games Concepts.vcxproj -> D:\Users\JMills14\Documents\GitHub\Assingment-2\Assignment 2 - Games Concepts\\Assignment 2 - Games Concepts.pdb (Full PDB)
