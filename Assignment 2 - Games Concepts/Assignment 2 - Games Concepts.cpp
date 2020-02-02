@@ -1,7 +1,8 @@
 // Assignment 2 - Games Concepts.cpp: A program using the TL-Engine
 
 #include <sstream>
-#include <TL-Engine.h>	// TL-Engine include file and namespace
+#include <TL-Engine.h> // TL-Engine include file and namespace
+#include <cmath>
 using namespace tle;
 using namespace std;
 
@@ -17,6 +18,9 @@ const float frogRadius = 5.04487f * frogSize;
 const float frogDiameter = frogRadius * 2;
 int currentFrog = 0;
 
+int frogOne = 0, frogTwo = 1, frogThree = 2;
+
+float CountDown;
 
 float frogMovementOnTyreSpeed;
 
@@ -26,6 +30,9 @@ enum gameStates {playing, paused, over};
 
 
 float frogStateIdentifier[kFrogAmount];
+float Timer = 20;
+float countUp = 0;
+
 
 bool collidedWithCar = false;
 bool collidedWithTree;
@@ -52,6 +59,7 @@ float carMinX[KCarAmount];
 float carMaxX[KCarAmount];
 float carMinZ[KCarAmount];
 float carMaxZ[KCarAmount];
+float carDirection[KCarAmount] = {50, -50, 50, -50};
 
 float treeMinX[kTreeAmount];
 float treeMaxX[kTreeAmount];
@@ -160,7 +168,7 @@ void main()
 		carWidthRadius[i] = 2.79333;
 		carXRange *= -1;
 		carRotateRange *= -1;
-
+		
 	}
 
 	IMesh* plantMesh = myEngine->LoadMesh("plant.x");
@@ -196,14 +204,30 @@ void main()
 		{
 
 			stringstream time;
-			time << "Time: " << frameTime;
-			GameOverFont->Draw(time.str(),1000,0);
+			//CountDown = frameTime * 10000;
+			//float roundedDown = floor(CountDown);
+			//roundedDown = roundedDown / roundedDown;
+
+			Timer -= frameTime;
+			float timer = floor(Timer);
+			countUp += 1;
+			time << "Time: " << timer;
+			GameOverFont->Draw(time.str(), 1125, 0);
 			time.str("");
+
+
+			
 
 			stringstream scoreOut;
 			scoreOut << "Score: " << score;
 			GameOverFont->Draw(scoreOut.str(), 0, 0);
 			scoreOut.str("");
+
+			if (frogStateIdentifier[frogOne] == dead && frogStateIdentifier[frogTwo] && frogStateIdentifier[frogThree] == dead)
+			{
+				game = over;
+			}
+
 			tyres[0]->MoveX(tyreSpeedLane1);
 			if (tyres[0]->GetX() >= 50 || tyres[0]->GetX() <= -50)
 			{
@@ -224,6 +248,14 @@ void main()
 			{
 				tyreSpeedLane4 *= -1;
 			}
+			/*for (int i = 0; i < KCarAmount; ++i)
+			{
+				car[i]->MoveX(vehicleLane1Speed * carDirection[i]);
+				if (car[i]->GetX() >= 55 || car[i]->GetX() <= -55)
+				{
+					carDirection[i] *= -1;
+				}
+			}*/
 
 			car[0]->MoveX(vehicleLane1Speed);
 			if (car[0]->GetX() >= 55)
@@ -246,6 +278,10 @@ void main()
 				car[3]->MoveX(100);
 			}
 
+			if (countUp > 20)
+			{
+				frogStateIdentifier[currentFrog] == dead;
+			}
 
 			if (currentFrogDirection == NotOnTyre)
 			{
@@ -318,17 +354,18 @@ void main()
 				if (myEngine->KeyHeld(MoveLeft))
 				{
 					//frog[currentFrog]->MoveX(-10.0f);
-					frog[currentFrog]->MoveX(-(0.01f * kGameSpeed));
+					frog[currentFrog]->MoveX(-(0.05f * kGameSpeed));
+					frog[currentFrog]->RotateY(-0.09f * kGameSpeed);
 				}
 				else if (myEngine->KeyHeld(MoveRight))
 				{
 					//frog[currentFrog]->SetLocalY(90);
 					//frog[currentFrog]->MoveX(10.0f);
-					frog[currentFrog]->MoveX(0.01f * kGameSpeed);
+					frog[currentFrog]->MoveX(0.05f * kGameSpeed);
 				}
-				else if (myEngine->KeyHit(MoveForward) || myEngine->KeyHit(Key_W))
+				else if (myEngine->KeyHeld(MoveForward) || myEngine->KeyHeld(Key_W))
 				{
-					frog[currentFrog]->MoveZ(10.0f);
+					frog[currentFrog]->MoveLocalZ(0.1f * kGameSpeed);
 					//frog[currentFrog]->MoveZ(0.01f * kGameSpeed);
 				}
 				else if (myEngine->KeyHit(MoveBackward) || myEngine->KeyHit(Key_S))
@@ -390,7 +427,7 @@ void main()
 				dummyModel->AttachToParent(frog[currentFrog]);
 				frogStateIdentifier[currentFrog] = crossing;
 			}
-			else if (frogStateIdentifier[currentFrog] == dead)
+			else if (frogStateIdentifier[currentFrog] == dead && frog[currentFrog]->GetZ() <= 65 && frog[currentFrog]->GetZ() >= 15 && frog[currentFrog]->GetX() >= -50 && frog[currentFrog]->GetX() <= 50)
 			{
 				if (currentFrog > 2) game = over;
 				frog[currentFrog]->SetSkin("frog_red.jpg");
