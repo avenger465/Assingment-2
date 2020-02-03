@@ -1,0 +1,34 @@
+basic
+- skybox
+- floor
+- island 1
+- manual camera
+- 3 frogs
+- cars on lanes 2 and 3
+
+40%
+-  each frog has its own state
+- there is a game state
+- frog slide along the world X and Z axis
+- collision detection between the cars and frogs
+
+50%
+- make the frog turn to the direction it is moving
+- add more vehicles to the other lanes
+- vehicles should vanish off the road and wait 2 seconds before reappearing
+- camera should rotate around frog
+
+60%
+- add second island
+- frog must cross to second island
+- if frog falls in water it dies
+- add four tyres
+- collsion detection for tyres
+- count-down timer
+- score
+
+70%
+- frog slides 10 in the direction pressed
+- tyres should be floating along four lanes in groups of three
+- add more traffic to the lanes
+- add trees to the second island and collision detection
