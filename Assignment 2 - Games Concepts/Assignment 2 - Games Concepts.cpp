@@ -30,8 +30,6 @@ enum gameStates {playing, paused, over};
 
 
 float frogStateIdentifier[kFrogAmount];
-float Timer = 20;
-float countUp = 0;
 
 
 bool collidedWithCar = false;
@@ -54,6 +52,8 @@ float tyreMinX[kTyreAmount];
 float tyreMaxX[kTyreAmount];
 float tyreMinZ[kTyreAmount];
 float tyreMaxZ[kTyreAmount];
+
+float x;
 
 float carMinX[KCarAmount];
 float carMaxX[KCarAmount];
@@ -93,6 +93,10 @@ int GameDecisions(gameStates gameplay);
 bool CollisionWithTyre(float tyreminx, float tyremaxx, float tyreminz, float tyremaxz);
 bool CollisionWithTree(float treeminx, float treemaxx, float treeminz, float treemaxz);
 void InitialGameStatesForFrogs();
+void Timer(float frameTime, IFont* GameOverFont, gameStates gameplay);
+void DisplayScore(IFont* GameOverFont, int score);
+
+float startTimer = 21;
 
 //The boundary for the car collisions
 const int trafficMinX = -50;
@@ -203,25 +207,14 @@ void main()
 		if (game == playing)
 		{
 
-			stringstream time;
 			//CountDown = frameTime * 10000;
 			//float roundedDown = floor(CountDown);
 			//roundedDown = roundedDown / roundedDown;
 
-			Timer -= frameTime;
-			float timer = floor(Timer);
-			countUp += 1;
-			time << "Time: " << timer;
-			GameOverFont->Draw(time.str(), 1125, 0);
-			time.str("");
 
-
+			Timer(frameTime, GameOverFont, game);
+			DisplayScore(GameOverFont, 0);
 			
-
-			stringstream scoreOut;
-			scoreOut << "Score: " << score;
-			GameOverFont->Draw(scoreOut.str(), 0, 0);
-			scoreOut.str("");
 
 			if (frogStateIdentifier[frogOne] == dead && frogStateIdentifier[frogTwo] && frogStateIdentifier[frogThree] == dead)
 			{
@@ -276,11 +269,6 @@ void main()
 			if (car[3]->GetX() <= -55)
 			{
 				car[3]->MoveX(100);
-			}
-
-			if (countUp > 20)
-			{
-				frogStateIdentifier[currentFrog] == dead;
 			}
 
 			if (currentFrogDirection == NotOnTyre)
@@ -355,7 +343,7 @@ void main()
 				{
 					//frog[currentFrog]->MoveX(-10.0f);
 					frog[currentFrog]->MoveX(-(0.05f * kGameSpeed));
-					frog[currentFrog]->RotateY(-0.09f * kGameSpeed);
+					//frog[currentFrog]->RotateY(-0.09f * kGameSpeed);
 				}
 				else if (myEngine->KeyHeld(MoveRight))
 				{
@@ -414,7 +402,7 @@ void main()
 			else if (frogStateIdentifier[currentFrog] == dead && ((frog[currentFrog]->GetZ() >= 117.5 || frog[currentFrog]->GetZ() <= 7.5 || frog[currentFrog]->GetX() <= -52.5 || frog[currentFrog]->GetX() >= 52.5) || (frog[currentFrog]->GetZ() >= 75 && frog[currentFrog]->GetZ() <= 105 && frog[currentFrog]->GetX() >= -50 && frog[currentFrog]->GetX() <= 50)))
 
 			{
-				if (currentFrog > 2) game = over;
+
 				frog[currentFrog]->SetSkin("frog_red.jpg");
 				frog[currentFrog]->Scale(0.5);
 				dummyModel->DetachFromParent();
@@ -424,12 +412,18 @@ void main()
 				}
 				frogStateIdentifier[currentFrog] = dead;
 				currentFrog++;
-				dummyModel->AttachToParent(frog[currentFrog]);
-				frogStateIdentifier[currentFrog] = crossing;
+				if (currentFrog > 2)
+				{
+					game = over;
+				}
+				else
+				{
+					dummyModel->AttachToParent(frog[currentFrog]);
+					frogStateIdentifier[currentFrog] = crossing;
+				}
 			}
 			else if (frogStateIdentifier[currentFrog] == dead && frog[currentFrog]->GetZ() <= 65 && frog[currentFrog]->GetZ() >= 15 && frog[currentFrog]->GetX() >= -50 && frog[currentFrog]->GetX() <= 50)
 			{
-				if (currentFrog > 2) game = over;
 				frog[currentFrog]->SetSkin("frog_red.jpg");
 				frog[currentFrog]->Scale(0.5);
 				dummyModel->DetachFromParent();
@@ -437,6 +431,15 @@ void main()
 				currentFrog++;
 				dummyModel->AttachToParent(frog[currentFrog]);
 				frogStateIdentifier[currentFrog] = crossing;
+				if (currentFrog > 2)
+				{
+					game = over;
+				}
+				else
+				{
+					dummyModel->AttachToParent(frog[currentFrog]);
+					frogStateIdentifier[currentFrog] = crossing;
+				}
 			}
 			/*else if (frogStateIdentifier[0] == dead && frogStateIdentifier[1] == dead && frogStateIdentifier[0] == dead)
 			{
@@ -560,6 +563,8 @@ void main()
 		}
 		else if (game == paused)
 		{
+			DisplayScore(GameOverFont, 0);
+			Timer(frameTime, GameOverFont, game);
 			if (myEngine->KeyHit(Pausing))
 			{
 				if (game == paused)
@@ -686,4 +691,40 @@ bool CollisionWithTree(float treeminx, float treemaxx, float treeminz, float tre
 	{
 		return false;
 	}
+}
+
+void Timer(float frameTime, IFont* GameOverFont, gameStates gameplay)
+{
+	float timer;
+	stringstream time;
+	float countUp = 0;
+	if (gameplay == playing)
+	{
+		startTimer -= frameTime;
+		timer = floor(startTimer);
+		x = floor(startTimer);
+		countUp += 1;
+	}
+	else if (gameplay == paused)
+	{
+		timer = x;
+	}
+
+	time << "Time: " << timer;
+	GameOverFont->Draw(time.str(), 1125, 0);
+	time.str("");
+
+	if (timer < 0)
+	{
+		startTimer = 21;
+		frogStateIdentifier[currentFrog] == dead;
+	}
+}
+
+void DisplayScore(IFont* GameOverFont, int score)
+{
+	stringstream scoreOut;
+	scoreOut << "Score: " << score;
+	GameOverFont->Draw(scoreOut.str(), 0, 0);
+	scoreOut.str("");
 }
