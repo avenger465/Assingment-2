@@ -3,10 +3,12 @@
 #include <sstream>
 #include <TL-Engine.h> // TL-Engine include file and namespace
 #include <cmath>
+#include <chrono>
+#include <thread>
 using namespace tle;
 using namespace std;
 
-const float kGameSpeed = 0.75f;
+const float kGameSpeed = 0.5f;
 const int KCarAmount = 4;
 const int kFrogAmount = 3;
 const int kTreeAmount = 6;
@@ -27,6 +29,7 @@ float frogMovementOnTyreSpeed;
 enum frogState {waiting, crossing, safe, dead};
 enum frogDirections {MovingLeft, MovingRight, NotOnTyre};
 enum gameStates {playing, paused, over};
+enum carStates {GoingLeft, GoingRight, LeftDownSlope, RightDownSlope, LeftUpSlope, RightUpSlope};
 
 
 float frogStateIdentifier[kFrogAmount];
@@ -62,6 +65,7 @@ float carMaxX[KCarAmount];
 float carMinZ[KCarAmount];
 float carMaxZ[KCarAmount];
 float carDirection[KCarAmount] = {50, -50, 50, -50};
+float carLaneSpeeds[KCarAmount];
 
 float treeMinX[kTreeAmount];
 float treeMaxX[kTreeAmount];
@@ -91,14 +95,13 @@ float treeLengthRadius = 0.5;//3.04428;
 
 //function prototype calls
 bool CollisionWithCar(float carminx, float carmaxx, float carminz, float carmaxz);
-int GameDecisions(gameStates gameplay);
 bool CollisionWithTyre(float tyreminx, float tyremaxx, float tyreminz, float tyremaxz);
 bool CollisionWithTree(float treeminx, float treemaxx, float treeminz, float treemaxz);
 void InitialGameStatesForFrogs();
 void Timer(float frameTime, IFont* GameOverFont, gameStates gameplay);
 void DisplayScore(IFont* GameOverFont, int score);
 void CheckForCollision(frogDirections currentFrogDirection);
-void CarMovement();
+void CarMovement(carStates carStatesArray[KCarAmount]);
 void TyreMovement();
 void CheckForSafeZone();
 void MoveAlongTyre(int tyreCollided);
@@ -127,8 +130,8 @@ EKeyCode Escape = Key_Escape;
 EKeyCode keyForCameraReset = Key_C;
 
 //vehicle speed declarations
-float vehicleLane2Speed = 0.01f * kGameSpeed;
-float vehicleLane1Speed = 1.0f / 2.0f * vehicleLane2Speed;
+float vehicleLane2Speed = 0.05f * kGameSpeed;
+float vehicleLane1Speed = (1.0f/2.0f) * vehicleLane2Speed;
 float vehicleLane3Speed = 1.5 * vehicleLane2Speed;
 float vehicleLane4Speed = 2 * vehicleLane2Speed;
 
@@ -139,6 +142,7 @@ void main()
 {
 	gameStates game = playing;
 	frogDirections currentFrogDirection = NotOnTyre;
+	carStates carStatesArray[KCarAmount];
 	//frogState frog[currentFrog] = crossing;
 	// Create a 3D engine (using TLX engine here) and open a window for it
 	I3DEngine* myEngine = New3DEngine(kTLX);
@@ -177,6 +181,41 @@ void main()
 	IMesh* carMesh = myEngine->LoadMesh("rover.x");
 	for (int i = 0; i < KCarAmount; ++i)
 	{
+		switch (i)
+		{
+		case 0:
+			carStatesArray[i] = GoingRight;
+			carLaneSpeeds[i] = vehicleLane1Speed;
+			break;
+		case 1:
+			carStatesArray[i] = GoingLeft;
+			carLaneSpeeds[i] = vehicleLane2Speed;
+			break;
+		case 2:
+			carStatesArray[i] = GoingRight;
+			carLaneSpeeds[i] = vehicleLane3Speed;
+			break;
+		case 3:
+			carStatesArray[i] = GoingLeft;
+			carLaneSpeeds[i] = vehicleLane4Speed;
+			break;
+		case 4:
+			carStatesArray[i] = GoingRight;
+			carLaneSpeeds[i] = vehicleLane1Speed;
+			break;
+		case 5:
+			carStatesArray[i] = GoingLeft;
+			carLaneSpeeds[i] = vehicleLane2Speed;
+			break;
+		case 6:
+			carStatesArray[i] = GoingRight;
+			carLaneSpeeds[i] = vehicleLane3Speed;
+			break;
+		case 7:
+			carStatesArray[i] = GoingLeft;
+			carLaneSpeeds[i] = vehicleLane4Speed;
+			break;
+		}
 		car[i] = carMesh->CreateModel(xPos[i], 0.0f, zPos[i]);//(0 + (-(carXRange)), 0.0f, 25 + (i * 10));
 
 		car[i]->RotateY(carRotateRange);
@@ -228,7 +267,7 @@ void main()
 				game = over;
 			}
 
-			CarMovement();
+			CarMovement(carStatesArray);
 			TyreMovement();
 
 			CheckForCollision(currentFrogDirection);
@@ -510,41 +549,6 @@ void InitialGameStatesForFrogs()
 	frogStateIdentifier[1] = waiting;
 	frogStateIdentifier[2] = waiting;
 }
-int GameDecisions(gameStates gameplay)
-{
-	if (gameplay == playing)
-	{
-		car[0]->MoveX(vehicleLane1Speed);
-		if (car[0]->GetX() >= 55)
-		{
-			car[0]->MoveX(-100);
-		}
-		car[1]->MoveX(-vehicleLane2Speed);
-		if (car[1]->GetX() <= -55)
-		{
-			car[1]->MoveX(100);
-		}
-		car[2]->MoveX(vehicleLane3Speed);
-		if (car[2]->GetX() >= 55)
-		{
-			car[2]->MoveX(-100);
-		}
-		car[3]->MoveX(-vehicleLane4Speed);
-		if (car[3]->GetX() <= -55)
-		{
-			car[3]->MoveX(100);
-		}
-		return 1;
-	}
-	else if (gameplay == paused)
-	{
-		return 1;
-	}
-	else if (gameplay == over)
-	{
-		return 1;
-	}
-}
 bool CollisionWithTyre(float tyreminx, float tyremaxx, float tyreminz, float tyremaxz)
 {
 	float currentFrogX = frog[currentFrog]->GetX();
@@ -609,7 +613,7 @@ void Timer(float frameTime, IFont* GameOverFont, gameStates gameplay)
 	if (timer < 0)
 	{
 		startTimer = 21;
-		frogStateIdentifier[currentFrog] = dead;
+		//frogStateIdentifier[currentFrog] = dead;
 	}
 }
 
@@ -621,27 +625,87 @@ void DisplayScore(IFont* GameOverFont, int score)
 	scoreOut.str("");
 }
 
-void CarMovement()
+void CarMovement(carStates carStatesArray[KCarAmount])
 {
-	car[0]->MoveX(vehicleLane1Speed);
-	if (car[0]->GetX() >= 55)
+	for (int i = 0; i < KCarAmount; ++i)
 	{
-		car[0]->MoveX(-100);
-	}
-	car[1]->MoveX(-vehicleLane2Speed);
-	if (car[1]->GetX() <= -55)
-	{
-		car[1]->MoveX(100);
-	}
-	car[2]->MoveX(vehicleLane3Speed);
-	if (car[2]->GetX() >= 55)
-	{
-		car[2]->MoveX(-100);
-	}
-	car[3]->MoveX(-vehicleLane4Speed);
-	if (car[3]->GetX() <= -55)
-	{
-		car[3]->MoveX(100);
+		if (carStatesArray[i] == GoingLeft)
+		{
+			if (car[i]->GetX() <= -65) 
+			{
+				carStatesArray[i] = LeftDownSlope;
+			}
+			else
+			{
+				car[i]->MoveX(-carLaneSpeeds[i]);
+			}
+		}
+		else if (carStatesArray[i] == GoingRight)
+		{
+			
+			if (car[i]->GetX() >= 65) {
+				carStatesArray[i] = RightDownSlope;
+			}
+			else
+			{
+				car[i]->MoveX(carLaneSpeeds[i]);
+			}
+		}
+		else if (carStatesArray[i] == LeftDownSlope)
+		{
+			if (car[i]->GetX() <= -75 || car[i]->GetY() <= -5)
+			{
+				carStatesArray[i] = LeftUpSlope;
+			}
+			else
+			{
+				car[i]->RotateZ(0.1f);
+				car[i]->MoveX(-0.01f);
+				car[i]->MoveY(-0.01f);
+			}
+		}
+		else if (carStatesArray[i] == RightDownSlope)
+		{
+			if (car[i]->GetX() >= 75 || car[i]->GetY() <= -5)
+			{
+				carStatesArray[i] = RightUpSlope;
+			}
+			else
+			{
+				car[i]->RotateZ(-0.1f);
+				car[i]->MoveX(0.01f);
+				car[i]->MoveY(-0.01f);
+			}
+		}
+		else if (carStatesArray[i] == LeftUpSlope)
+		{
+			car[i]->SetX(75);
+			if(car[i]->GetY() >= 0)
+			{
+				carStatesArray[i] = GoingLeft;
+			}
+			else
+			{
+				car[i]->RotateZ(-0.1f);
+				car[i]->MoveX(-0.01f);
+				car[i]->MoveY(0.01f);
+			}
+
+		}
+		else if (carStatesArray[i] == RightUpSlope)
+		{
+			car[i]->SetX(-75);
+			if (car[i]->GetY() >= 0)
+			{
+				carStatesArray[i] = GoingRight;
+			}
+			else
+			{
+				car[i]->RotateZ(0.1f);
+				car[i]->MoveX(0.01f);
+				car[i]->MoveY(0.01f);
+			}
+		}
 	}
 }
 
