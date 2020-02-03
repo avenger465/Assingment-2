@@ -5,11 +5,12 @@
 #include <cmath>
 #include <chrono>
 #include <thread>
+#include <stdlib.h>
 using namespace tle;
 using namespace std;
 
 const float kGameSpeed = 0.5f;
-const int KCarAmount = 4;
+const int KCarAmount = 8;
 const int kFrogAmount = 3;
 const int kTreeAmount = 6;
 const int kTyreAmount = 4;
@@ -30,7 +31,6 @@ enum frogState {waiting, crossing, safe, dead};
 enum frogDirections {MovingLeft, MovingRight, NotOnTyre};
 enum gameStates {playing, paused, over};
 enum carStates {GoingLeft, GoingRight, LeftDownSlope, RightDownSlope, LeftUpSlope, RightUpSlope};
-
 
 float frogStateIdentifier[kFrogAmount];
 
@@ -121,6 +121,11 @@ float tyreSpeedLane2 = 0.025f * kGameSpeed;
 float tyreSpeedLane3 = 0.03f * kGameSpeed;
 float tyreSpeedLane4 = 0.035f * kGameSpeed;
 
+int lane1Start = 0;
+int lane2Start = 2;
+int lane3Start = 4;
+int lane4Start = 6;
+
 EKeyCode MoveForward = EKeyCode(192);
 EKeyCode MoveBackward = EKeyCode(191);
 EKeyCode MoveLeft = Key_Z;
@@ -129,14 +134,15 @@ EKeyCode Pausing = Key_P;
 EKeyCode Escape = Key_Escape;
 EKeyCode keyForCameraReset = Key_C;
 
+
 //vehicle speed declarations
 float vehicleLane2Speed = 0.05f * kGameSpeed;
 float vehicleLane1Speed = (1.0f/2.0f) * vehicleLane2Speed;
 float vehicleLane3Speed = 1.5 * vehicleLane2Speed;
 float vehicleLane4Speed = 2 * vehicleLane2Speed;
 
-float xPos[KCarAmount] = { -50.0f,   50.0f, -50.0f, 50.0f };
-float zPos[KCarAmount] = { 25.0f, 35.0f, 45.0f, 55.0f };
+float xPos[KCarAmount] = { -50.0f,   50.0f, -50.0f, 50.0f, -50.0f,   50.0f, -50.0f, 50.0f };
+float zPos[KCarAmount] = { 25.0f, 35.0f, 45.0f, 55.0f, 25.0f, 35.0f, 45.0f, 55.0f };
 
 void main()
 {
@@ -162,6 +168,9 @@ void main()
 	IMesh* islandOneMesh = myEngine->LoadMesh("island1.x");
 	IMesh* islandTwoMesh = myEngine->LoadMesh("island2.x");
 	IMesh* dummy = myEngine->LoadMesh("Dummy.x");
+	IMesh* carMesh = myEngine->LoadMesh("transit.x");
+
+
 	IModel* dummyModel = dummy->CreateModel(0, 0, 0);
 	IModel* islandTwoModel = islandTwoMesh->CreateModel(0, -5, 115);
 	IModel* islandOneModel = islandOneMesh->CreateModel(0, -5, 40);
@@ -178,7 +187,6 @@ void main()
 	dummyModel->AttachToParent(frog[currentFrog]);
 
 	//Creating the array of cars being used
-	IMesh* carMesh = myEngine->LoadMesh("rover.x");
 	for (int i = 0; i < KCarAmount; ++i)
 	{
 		switch (i)
@@ -200,32 +208,34 @@ void main()
 			carLaneSpeeds[i] = vehicleLane4Speed;
 			break;
 		case 4:
-			carStatesArray[i] = GoingRight;
+			carStatesArray[i] = RightDownSlope;
 			carLaneSpeeds[i] = vehicleLane1Speed;
 			break;
 		case 5:
-			carStatesArray[i] = GoingLeft;
+			carStatesArray[i] = LeftDownSlope;
 			carLaneSpeeds[i] = vehicleLane2Speed;
 			break;
 		case 6:
-			carStatesArray[i] = GoingRight;
+			carStatesArray[i] = RightDownSlope;
 			carLaneSpeeds[i] = vehicleLane3Speed;
 			break;
 		case 7:
-			carStatesArray[i] = GoingLeft;
+			carStatesArray[i] = LeftDownSlope;
 			carLaneSpeeds[i] = vehicleLane4Speed;
 			break;
 		}
+
 		car[i] = carMesh->CreateModel(xPos[i], 0.0f, zPos[i]);//(0 + (-(carXRange)), 0.0f, 25 + (i * 10));
 
 		car[i]->RotateY(carRotateRange);
-		car[i]->SetSkin(carModels[i]);
+		//car[i]->SetSkin(carModels[i]);
 		carLengthRadius[i] = 5.9069;
 		carWidthRadius[i] = 2.79333;
 		carXRange *= -1;
 		carRotateRange *= -1;
 		
 	}
+
 
 	IMesh* plantMesh = myEngine->LoadMesh("plant.x");
 	for (int i = 0; i < kTreeAmount; ++i)
@@ -631,6 +641,7 @@ void CarMovement(carStates carStatesArray[KCarAmount])
 	{
 		if (carStatesArray[i] == GoingLeft)
 		{
+			//car[i]->ResetOrientation();
 			if (car[i]->GetX() <= -65) 
 			{
 				carStatesArray[i] = LeftDownSlope;
@@ -642,7 +653,7 @@ void CarMovement(carStates carStatesArray[KCarAmount])
 		}
 		else if (carStatesArray[i] == GoingRight)
 		{
-			
+			//car[i]->ResetOrientation()
 			if (car[i]->GetX() >= 65) {
 				carStatesArray[i] = RightDownSlope;
 			}
@@ -672,7 +683,7 @@ void CarMovement(carStates carStatesArray[KCarAmount])
 			}
 			else
 			{
-				car[i]->RotateZ(-0.1f);
+				car[i]->RotateZ(-0.1);
 				car[i]->MoveX(0.01f);
 				car[i]->MoveY(-0.01f);
 			}
