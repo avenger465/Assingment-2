@@ -1,8 +1,7 @@
 ﻿cl : Command line warning D9035: option 'Gm' has been deprecated and will be removed in a future release
   Assignment 2 - Games Concepts.cpp
-c:\users\aveng\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(141): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-c:\users\aveng\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(230): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
-c:\users\aveng\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(243): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
-c:\users\aveng\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(251): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
+c:\users\aveng\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(142): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\aveng\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(233): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
+c:\users\aveng\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(246): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
   Assignment 2 - Games Concepts.vcxproj -> C:\Users\aveng\Documents\GitHub\Assingment-2\Assignment 2 - Games Concepts\\Assignment 2 - Games ConceptsDebug.exe
   Copying DLLs & shaders...

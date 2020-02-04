@@ -13,7 +13,7 @@ const float kGameSpeed = 0.5f;
 const int KCarAmount = 8;
 const int kFrogAmount = 3;
 const int kTreeAmount = 6;
-const int kTyreAmount = 4;
+const int kTyreAmount = 12;
 IModel* car[KCarAmount];
 IModel* frog[kFrogAmount];
 const float frogSize = 0.5;
@@ -108,6 +108,7 @@ void MoveAlongTyre(int tyreCollided);
 void ResetCamera(I3DEngine* myEngine, ICamera* myCamera, IModel* dummyModel);
 
 float startTimer = 21;
+float incrementBy = 0;
 
 //The boundary for the car collisions
 const int trafficMinX = -50;
@@ -141,6 +142,8 @@ float vehicleLane1Speed = (1.0f/2.0f) * vehicleLane2Speed;
 float vehicleLane3Speed = 1.5 * vehicleLane2Speed;
 float vehicleLane4Speed = 2 * vehicleLane2Speed;
 
+float tyreZPos[kTyreAmount] = {75, 75,  75, 85, 85, 85, 95, 95, 95, 105, 105, 105};
+float tyreXPos[kTyreAmount] = {-50, -50, -50, 50, 50, 50, -50, -50, -50, 50, 50, 50};
 float xPos[KCarAmount] = { -50.0f,   50.0f, -50.0f, 50.0f, -50.0f,   50.0f, -50.0f, 50.0f };
 float zPos[KCarAmount] = { 25.0f, 35.0f, 45.0f, 55.0f, 25.0f, 35.0f, 45.0f, 55.0f };
 
@@ -246,9 +249,9 @@ void main()
 
 	//Creating the array of tyres being used
 	IMesh* tyreMesh = myEngine->LoadMesh("tyre.x");
-	for (int i = 0; i < 4; ++i)
+	for (int i = 0; i < kTyreAmount; ++i)
 	{
-		tyres[i] = tyreMesh->CreateModel(0 + (-(carXRange)), -2.5, 75 + (i * 10));
+		tyres[i] = tyreMesh->CreateModel(tyreXPos[i], -2.5, tyreZPos[i]);// 75 + (i * 10));
 		tyres[i]->Scale(10);
 		carXRange *= -1;
 	}
@@ -415,6 +418,7 @@ void main()
 					}
 					else
 					{
+						incrementBy += 0.01f;
 						dummyModel->RotateLocalX(0.01f);
 						/*myCamera->MoveZ(0.01f);
 						myCamera->MoveY(0.01f);
@@ -429,6 +433,7 @@ void main()
 					}
 					else
 					{
+						incrementBy -= 0.01f;
 						dummyModel->RotateLocalX(-0.01f);
 						/*myCamera->MoveZ(-0.01f);
 						myCamera->MoveY(-0.01f);
@@ -839,10 +844,12 @@ void ResetCamera(I3DEngine* myEngine, ICamera* myCamera, IModel* dummyModel)
 {
 	if (myEngine->KeyHit(keyForCameraReset))
 	{
-		myCamera->DetachFromParent();
-		//myCamera->ResetOrientation();
-		myCamera->SetPosition(0, 60, -160);
-		myCamera->RotateX(20);
-		myCamera->AttachToParent(dummyModel);
+		dummyModel->RotateLocalX(-(incrementBy));
+		incrementBy = 0;
+		//myCamera->DetachFromParent();
+		////myCamera->ResetOrientation();
+		//myCamera->SetPosition(0, 60, -160);
+		//myCamera->RotateX(20);
+		//myCamera->AttachToParent(dummyModel);
 	}
 }
