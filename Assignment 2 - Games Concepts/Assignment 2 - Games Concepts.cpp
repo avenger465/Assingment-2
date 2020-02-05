@@ -9,8 +9,9 @@
 using namespace tle;
 using namespace std;
 
-const float kGameSpeed = 0.5f;
+const float kGameSpeed = 0.25f;
 const int KCarAmount = 8;
+const int kCarTypes = 4;
 const int kFrogAmount = 3;
 const int kTreeAmount = 6;
 const int kTyreAmount = 12;
@@ -30,7 +31,9 @@ float frogMovementOnTyreSpeed;
 enum frogState {waiting, crossing, safe, dead};
 enum frogDirections {MovingLeft, MovingRight, NotOnTyre};
 enum gameStates {playing, paused, over};
-enum carStates {GoingLeft, GoingRight, LeftDownSlope, RightDownSlope, LeftUpSlope, RightUpSlope};
+enum carStates {CarGoingLeft, CarGoingRight, LeftDownSlope, RightDownSlope, LeftUpSlope, RightUpSlope};
+enum tyreStates {TyreGoingLeft, TyreGoingRight};
+enum frogMovement {Forward, Backward, Left, Right};
 
 float frogStateIdentifier[kFrogAmount];
 
@@ -66,6 +69,7 @@ float carMinZ[KCarAmount];
 float carMaxZ[KCarAmount];
 float carDirection[KCarAmount] = {50, -50, 50, -50};
 float carLaneSpeeds[KCarAmount];
+float tyreLaneSpeeds[kTyreAmount];
 
 float treeMinX[kTreeAmount];
 float treeMaxX[kTreeAmount];
@@ -91,7 +95,7 @@ int carXRange = 50;
 int carRotateRange = 90;
 
 float treeWidthRadius = 3.063925;
-float treeLengthRadius = 0.5;//3.04428;
+float treeLengthRadius = 3.04428;
 
 //function prototype calls
 bool CollisionWithCar(float carminx, float carmaxx, float carminz, float carmaxz);
@@ -102,10 +106,11 @@ void Timer(float frameTime, IFont* GameOverFont, gameStates gameplay);
 void DisplayScore(IFont* GameOverFont, int score);
 void CheckForCollision(frogDirections currentFrogDirection);
 void CarMovement(carStates carStatesArray[KCarAmount]);
-void TyreMovement();
+void TyreMovement(tyreStates tyreStatesArray[kTyreAmount]);
 void CheckForSafeZone();
 void MoveAlongTyre(int tyreCollided);
 void ResetCamera(I3DEngine* myEngine, ICamera* myCamera, IModel* dummyModel);
+void FrogMovement(frogMovement currentFrogMovement);
 
 float startTimer = 21;
 float incrementBy = 0;
@@ -127,6 +132,7 @@ int lane2Start = 2;
 int lane3Start = 4;
 int lane4Start = 6;
 
+
 EKeyCode MoveForward = EKeyCode(192);
 EKeyCode MoveBackward = EKeyCode(191);
 EKeyCode MoveLeft = Key_Z;
@@ -134,6 +140,8 @@ EKeyCode MoveRight = Key_X;
 EKeyCode Pausing = Key_P;
 EKeyCode Escape = Key_Escape;
 EKeyCode keyForCameraReset = Key_C;
+
+int randomCar = 0;
 
 
 //vehicle speed declarations
@@ -143,7 +151,7 @@ float vehicleLane3Speed = 1.5 * vehicleLane2Speed;
 float vehicleLane4Speed = 2 * vehicleLane2Speed;
 
 float tyreZPos[kTyreAmount] = {75, 75,  75, 85, 85, 85, 95, 95, 95, 105, 105, 105};
-float tyreXPos[kTyreAmount] = {-50, -50, -50, 50, 50, 50, -50, -50, -50, 50, 50, 50};
+float tyreXPos[kTyreAmount] = {-60, -68, -76, 60, 68, 76, -60, -68, -76, 60, 68, 76};
 float xPos[KCarAmount] = { -50.0f,   50.0f, -50.0f, 50.0f, -50.0f,   50.0f, -50.0f, 50.0f };
 float zPos[KCarAmount] = { 25.0f, 35.0f, 45.0f, 55.0f, 25.0f, 35.0f, 45.0f, 55.0f };
 
@@ -152,6 +160,10 @@ void main()
 	gameStates game = playing;
 	frogDirections currentFrogDirection = NotOnTyre;
 	carStates carStatesArray[KCarAmount];
+	tyreStates tyreStatesArray[kTyreAmount];
+	frogMovement currentFrogMovement;
+
+
 	//frogState frog[currentFrog] = crossing;
 	// Create a 3D engine (using TLX engine here) and open a window for it
 	I3DEngine* myEngine = New3DEngine(kTLX);
@@ -171,7 +183,11 @@ void main()
 	IMesh* islandOneMesh = myEngine->LoadMesh("island1.x");
 	IMesh* islandTwoMesh = myEngine->LoadMesh("island2.x");
 	IMesh* dummy = myEngine->LoadMesh("Dummy.x");
-	IMesh* carMesh = myEngine->LoadMesh("transit.x");
+
+
+
+	IMesh* carMeshs[kCarTypes] = { myEngine->LoadMesh("transit.x") ,myEngine->LoadMesh("rover.x") ,myEngine->LoadMesh("pickUp.x") ,myEngine->LoadMesh("rangeRover.x") };
+
 
 
 	IModel* dummyModel = dummy->CreateModel(0, 0, 0);
@@ -179,6 +195,7 @@ void main()
 	IModel* islandOneModel = islandOneMesh->CreateModel(0, -5, 40);
 	IModel* skyBoxModel = skyBoxMesh->CreateModel(0, -1000, 0);
 	IModel* floorModel = floorMesh->CreateModel(0, -2.5, 0);
+
 
 	//creating the array of frogs being used
 	IMesh* frogMesh = myEngine->LoadMesh("frog.x");
@@ -192,48 +209,73 @@ void main()
 	//Creating the array of cars being used
 	for (int i = 0; i < KCarAmount; ++i)
 	{
+		randomCar = rand() % 4;
 		switch (i)
 		{
 		case 0:
-			carStatesArray[i] = GoingRight;
+			car[i] = carMeshs[randomCar]->CreateModel(xPos[i], 0.0f, zPos[i]);
+			carStatesArray[i] = CarGoingRight;
 			carLaneSpeeds[i] = vehicleLane1Speed;
 			break;
 		case 1:
-			carStatesArray[i] = GoingLeft;
+			car[i] = carMeshs[randomCar]->CreateModel(xPos[i], 0.0f, zPos[i]);
+			carStatesArray[i] = CarGoingLeft;
 			carLaneSpeeds[i] = vehicleLane2Speed;
 			break;
 		case 2:
-			carStatesArray[i] = GoingRight;
+			car[i] = carMeshs[randomCar]->CreateModel(xPos[i], 0.0f, zPos[i]);
+			carStatesArray[i] = CarGoingRight;
 			carLaneSpeeds[i] = vehicleLane3Speed;
 			break;
 		case 3:
-			carStatesArray[i] = GoingLeft;
+			car[i] = carMeshs[randomCar]->CreateModel(xPos[i], 0.0f, zPos[i]);
+			carStatesArray[i] = CarGoingLeft;
 			carLaneSpeeds[i] = vehicleLane4Speed;
 			break;
 		case 4:
+			car[i] = carMeshs[randomCar]->CreateModel(xPos[i], 0.0f, zPos[i]);
 			carStatesArray[i] = RightDownSlope;
 			carLaneSpeeds[i] = vehicleLane1Speed;
 			break;
 		case 5:
+			car[i] = carMeshs[randomCar]->CreateModel(xPos[i], 0.0f, zPos[i]);
 			carStatesArray[i] = LeftDownSlope;
 			carLaneSpeeds[i] = vehicleLane2Speed;
 			break;
 		case 6:
+			car[i] = carMeshs[randomCar]->CreateModel(xPos[i], 0.0f, zPos[i]);
 			carStatesArray[i] = RightDownSlope;
 			carLaneSpeeds[i] = vehicleLane3Speed;
 			break;
 		case 7:
+			car[i] = carMeshs[randomCar]->CreateModel(xPos[i], 0.0f, zPos[i]);
 			carStatesArray[i] = LeftDownSlope;
 			carLaneSpeeds[i] = vehicleLane4Speed;
 			break;
 		}
-
-		car[i] = carMesh->CreateModel(xPos[i], 0.0f, zPos[i]);//(0 + (-(carXRange)), 0.0f, 25 + (i * 10));
+		if (randomCar == 0)
+		{
+			carLengthRadius[i] = 6.1216;
+			carWidthRadius[i] = 2.82654;
+		}
+		else if (randomCar == 1)
+		{
+			carLengthRadius[i] = 5.9069;
+			carWidthRadius[i] = 2.79333;
+		}
+		else if (randomCar == 2)
+		{
+			carLengthRadius[i] = 6.14739;
+			carWidthRadius[i] = 2.58098;
+		}
+		else if (randomCar == 3)
+		{
+			carLengthRadius[i] = 5.53402;
+			carWidthRadius[i] = 2.68256;
+		}
+		//(0 + (-(carXRange)), 0.0f, 25 + (i * 10));
 
 		car[i]->RotateY(carRotateRange);
-		//car[i]->SetSkin(carModels[i]);
-		carLengthRadius[i] = 5.9069;
-		carWidthRadius[i] = 2.79333;
 		carXRange *= -1;
 		carRotateRange *= -1;
 		
@@ -251,8 +293,35 @@ void main()
 	IMesh* tyreMesh = myEngine->LoadMesh("tyre.x");
 	for (int i = 0; i < kTyreAmount; ++i)
 	{
-		tyres[i] = tyreMesh->CreateModel(tyreXPos[i], -2.5, tyreZPos[i]);// 75 + (i * 10));
-		tyres[i]->Scale(10);
+		if (i <= 2)
+		{
+			tyres[i] = tyreMesh->CreateModel(tyreXPos[i], -2.5, tyreZPos[i]);
+			tyres[i]->Scale(10);
+			tyreStatesArray[i] = TyreGoingRight;
+			tyreLaneSpeeds[i] = tyreSpeedLane1;
+		}
+		else if (i > 2 && i <= 5)
+		{
+			tyres[i] = tyreMesh->CreateModel(tyreXPos[i], -2.5, tyreZPos[i]);
+			tyres[i]->Scale(10);
+			tyreStatesArray[i] = TyreGoingLeft;
+			tyreLaneSpeeds[i] = tyreSpeedLane2;
+		}
+		else if (i > 5 && i <= 8)
+		{
+			tyres[i] = tyreMesh->CreateModel(tyreXPos[i], -2.5, tyreZPos[i]);
+			tyres[i]->Scale(10);
+			tyreStatesArray[i] = TyreGoingRight;
+			tyreLaneSpeeds[i] = tyreSpeedLane3;
+		}
+		else if (i > 8 && i <= 11)
+		{
+			tyres[i] = tyreMesh->CreateModel(tyreXPos[i], -2.5, tyreZPos[i]);
+			tyres[i]->Scale(10);
+			tyreStatesArray[i] = TyreGoingLeft;
+			tyreLaneSpeeds[i] = tyreSpeedLane4;
+		}
+		// 75 + (i * 10));
 		carXRange *= -1;
 	}
 
@@ -263,6 +332,8 @@ void main()
 	dummyModel->AttachToParent(frog[currentFrog]);
 
 	InitialGameStatesForFrogs();
+
+
 	//Main code for the running of the game
 	myEngine->Timer();
 	while (myEngine->IsRunning())
@@ -281,7 +352,7 @@ void main()
 			}
 
 			CarMovement(carStatesArray);
-			TyreMovement();
+			TyreMovement(tyreStatesArray);
 
 			CheckForCollision(currentFrogDirection);
 
@@ -350,9 +421,7 @@ void main()
 			}
 			if (frogStateIdentifier[currentFrog] == crossing)
 			{
-				CheckForSafeZone();
-				frogOldXpos = frog[currentFrog]->GetX();
-				frogOldZpos = frog[currentFrog]->GetZ();
+				//CheckForSafeZone();
 
 
 				if (movingLeft)
@@ -370,39 +439,56 @@ void main()
 				{
 					frog[currentFrog]->ResetOrientation();
 					dummyModel->RotateLocalY(-90);
-					frog[currentFrog]->RotateLocalY(90);
+					frog[currentFrog]->RotateY(90);
 					frog[currentFrog]->MoveX(10);
 					movingRight = !movingRight;
 				}
 
-				if (myEngine->KeyHeld(MoveLeft))
+				if (myEngine->KeyHit(MoveLeft))
 				{
 					//dummyModel->ResetOrientation();
 					//frog[currentFrog]->MoveX(-10.0f);
-					frog[currentFrog]->MoveX(-(0.05f * kGameSpeed));
+					//dummyModel->DetachFromParent();
+					//frog[currentFrog]->RotateY(-90);
+					//dummyModel->ResetOrientation();
+					//dummyModel->AttachToParent(frog[currentFrog]);
+					//frog[currentFrog]->MoveX(-5);
+					currentFrogMovement = Left;
+					FrogMovement(currentFrogMovement);
 					//frog[currentFrog]->RotateY(-90.0f);
 					//movingLeft = !movingLeft;
 
 				}
-				else if (myEngine->KeyHeld(MoveRight))
+				else if (myEngine->KeyHit(MoveRight))
 				{
 					//dummyModel->ResetOrientation();
 					//movingRight = !movingRight;
 
 					//frog[currentFrog]->SetLocalY(90);
 					//frog[currentFrog]->MoveX(.0f);
-					frog[currentFrog]->MoveX(0.05f * kGameSpeed);
+					//dummyModel->DetachFromParent();
+					//frog[currentFrog]->RotateY(90);
+					//dummyModel->AttachToParent(frog[currentFrog]);
+					//dummyModel->ResetOrientation();
+					currentFrogMovement = Right;
+					FrogMovement(currentFrogMovement);
+					//frog[currentFrog]->MoveX(5);
 				}
 				else if (myEngine->KeyHit(MoveForward) || myEngine->KeyHit(Key_W))
 				{
+
+					currentFrogMovement = Forward;
+					FrogMovement(currentFrogMovement);
 					//frog[currentFrog]->MoveLocalZ(0.1f * kGameSpeed);
-					frog[currentFrog]->MoveZ(10.0f);
+					//frog[currentFrog]->MoveZ(10.0f);
 					//frog[currentFrog]->MoveZ(0.01f * kGameSpeed);
 				}
 				else if (myEngine->KeyHit(MoveBackward) || myEngine->KeyHit(Key_S))
 				{
-					frog[currentFrog]->MoveZ(-10.0f);
+					//frog[currentFrog]->MoveZ(-10.0f);
 					//frog[currentFrog]->MoveZ(-(0.01f * kGameSpeed));
+					currentFrogMovement = Backward;
+					FrogMovement(currentFrogMovement);
 				}
 
 				if (myEngine->KeyHit(Escape))
@@ -504,7 +590,6 @@ void main()
 					frogStateIdentifier[currentFrog] = crossing;
 				}
 			}
-			/**** Update your scene each frame here ****/
 
 		}
 		else if (game == paused)
@@ -644,10 +729,10 @@ void CarMovement(carStates carStatesArray[KCarAmount])
 {
 	for (int i = 0; i < KCarAmount; ++i)
 	{
-		if (carStatesArray[i] == GoingLeft)
+		if (carStatesArray[i] == CarGoingLeft)
 		{
 			//car[i]->ResetOrientation();
-			if (car[i]->GetX() <= -65) 
+			if (car[i]->GetX() <= -60) 
 			{
 				carStatesArray[i] = LeftDownSlope;
 			}
@@ -656,10 +741,10 @@ void CarMovement(carStates carStatesArray[KCarAmount])
 				car[i]->MoveX(-carLaneSpeeds[i]);
 			}
 		}
-		else if (carStatesArray[i] == GoingRight)
+		else if (carStatesArray[i] == CarGoingRight)
 		{
 			//car[i]->ResetOrientation()
-			if (car[i]->GetX() >= 65) {
+			if (car[i]->GetX() >= 60) {
 				carStatesArray[i] = RightDownSlope;
 			}
 			else
@@ -698,7 +783,7 @@ void CarMovement(carStates carStatesArray[KCarAmount])
 			car[i]->SetX(75);
 			if(car[i]->GetY() >= 0)
 			{
-				carStatesArray[i] = GoingLeft;
+				carStatesArray[i] = CarGoingLeft;
 			}
 			else
 			{
@@ -713,7 +798,7 @@ void CarMovement(carStates carStatesArray[KCarAmount])
 			car[i]->SetX(-75);
 			if (car[i]->GetY() >= 0)
 			{
-				carStatesArray[i] = GoingRight;
+				carStatesArray[i] = CarGoingRight;
 			}
 			else
 			{
@@ -725,32 +810,50 @@ void CarMovement(carStates carStatesArray[KCarAmount])
 	}
 }
 
-void TyreMovement()
+void TyreMovement(tyreStates tyreStatesArray[kTyreAmount])
 {
-	tyres[0]->MoveX(tyreSpeedLane1);
-	if (tyres[0]->GetX() >= 50 || tyres[0]->GetX() <= -50)
+
+	for (int i = 0; i < kTyreAmount; ++i)
 	{
-		tyreSpeedLane1 *= -1;
-	}
-	tyres[1]->MoveX(-tyreSpeedLane2);
-	if (tyres[1]->GetX() <= -50 || tyres[1]->GetX() >= 50)
-	{
-		tyreSpeedLane2 *= -1;
-	}
-	tyres[2]->MoveX(tyreSpeedLane3);
-	if (tyres[2]->GetX() >= 50 || tyres[2]->GetX() <= -50)
-	{
-		tyreSpeedLane3 *= -1;
-	}
-	tyres[3]->MoveX(-tyreSpeedLane4);
-	if (tyres[3]->GetX() <= -50 || tyres[3]->GetX() >= 50)
-	{
-		tyreSpeedLane4 *= -1;
+		if (tyreStatesArray[i] == TyreGoingLeft)
+		{
+			if (tyres[i]->GetX() <= -50)
+			{
+				tyreStatesArray[i] = TyreGoingRight;
+			}
+			else  if (tyres[i]->GetX() <= 57 && tyres[i]->GetX() >= 55)
+			{
+				tyres[i]->SetY(-2.5);
+				tyres[i]->MoveX(-tyreLaneSpeeds[i]);
+			}
+			else
+			{
+				tyres[i]->MoveX(-tyreLaneSpeeds[i]);
+			}
+		}
+		else if (tyreStatesArray[i] == TyreGoingRight)
+		{
+			if (tyres[i]->GetX() >= 50)
+			{
+				tyreStatesArray[i] = TyreGoingLeft;
+			}
+			else  if (tyres[i]->GetX() >= -57 && tyres[i]->GetX() <= -55)
+			{
+				tyres[i]->SetY(-2.5);
+				tyres[i]->MoveX(tyreLaneSpeeds[i]);
+			}
+			else
+			{
+				tyres[i]->MoveX(tyreLaneSpeeds[i]);
+			}
+		}
 	}
 }
 
 void CheckForCollision(frogDirections currentFrogDirection)
 {
+	frogOldXpos = frog[currentFrog]->GetX();
+	frogOldZpos = frog[currentFrog]->GetZ();
 	if (frog[currentFrog]->GetZ() >= 25 && frog[currentFrog]->GetZ() <= 55 && frog[currentFrog]->GetX() >= -50 && frog[currentFrog]->GetX() <= 50)
 	{
 
@@ -778,27 +881,8 @@ void CheckForCollision(frogDirections currentFrogDirection)
 			tyreMaxZ[i] = tyres[i]->GetZ() + tyreRadius;
 			if (CollisionWithTyre(tyreMinX[i], tyreMaxX[i], tyreMinZ[i], tyreMaxZ[i]))
 			{
-				//frog[currentFrog]->SetPosition(tyres[i]->GetX, tyres[i]->GetY(), tyres[i]->GetZ());
-				MoveAlongTyre(i);
-				/*switch (i)
-				{
-				case 0:
-					currentFrogDirection = MovingRight;
-					frogMovementOnTyreSpeed = tyreSpeedLane1;
-					break;
-				case 1:
-					currentFrogDirection = MovingLeft;
-					frogMovementOnTyreSpeed = tyreSpeedLane2;
-					break;
-				case 2:
-					currentFrogDirection = MovingRight;
-					frogMovementOnTyreSpeed = tyreSpeedLane3;
-					break;
-				case 3:
-					currentFrogDirection = MovingLeft;
-					frogMovementOnTyreSpeed = tyreSpeedLane4;
-					break;
-				}*/
+				frog[currentFrog]->SetPosition(tyres[i]->GetX(), 0.0f, tyres[i]->GetZ());
+				//MoveAlongTyre(i);
 			}
 		}
 	}
@@ -822,7 +906,7 @@ void CheckForCollision(frogDirections currentFrogDirection)
 	}
 	else if (frog[currentFrog]->GetZ() >= 117.5 || frog[currentFrog]->GetZ() <= 7.5 || frog[currentFrog]->GetX() <= -52.5 || frog[currentFrog]->GetX() >= 52.5)
 	{
-		currentFrogDirection = NotOnTyre;
+		//currentFrogDirection = NotOnTyre;
 		frogStateIdentifier[currentFrog] = dead;
 	}
 }
@@ -851,5 +935,36 @@ void ResetCamera(I3DEngine* myEngine, ICamera* myCamera, IModel* dummyModel)
 		//myCamera->SetPosition(0, 60, -160);
 		//myCamera->RotateX(20);
 		//myCamera->AttachToParent(dummyModel);
+	}
+}
+
+void FrogMovement(frogMovement currentFrogMovement)
+{
+	switch (currentFrogMovement)
+	{
+	case Forward:
+		for (float i = 0; i <= 4; i++)
+		{
+			frog[currentFrog]->MoveZ(i);
+		}
+		break;
+	case Backward:
+		for (float i = 0; i <4; ++i)
+		{
+			frog[currentFrog]->MoveZ(-i);
+		}
+		break;
+	case Left:
+		for (float i = 0; i <5; ++i)
+		{
+			frog[currentFrog]->MoveX(-i);
+		}
+		break;
+	case Right:
+		for (float i = 0; i <5; ++i)
+		{
+			frog[currentFrog]->MoveX(i);
+		}
+		break;
 	}
 }
