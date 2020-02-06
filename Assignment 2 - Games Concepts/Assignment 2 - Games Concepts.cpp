@@ -110,7 +110,7 @@ void TyreMovement(tyreStates tyreStatesArray[kTyreAmount]);
 void CheckForSafeZone();
 void MoveAlongTyre(int tyreCollided);
 void ResetCamera(I3DEngine* myEngine, ICamera* myCamera, IModel* dummyModel);
-void FrogMovement(frogMovement currentFrogMovement);
+void FrogMovement(frogMovement currentFrogMovement, int locationAmount);
 
 float startTimer = 21;
 float incrementBy = 0;
@@ -120,6 +120,10 @@ const int trafficMinX = -50;
 const int trafficMaxX = 50;
 const int trafficMinZ = 25;
 const int trafficMaxZ = 55;
+
+
+int frogDesiredXLocation = -10;
+int frogDesiredZlocation = 15;
 
 //tyre speed declarations
 float tyreSpeedLane1 = 0.02f * kGameSpeed;
@@ -155,6 +159,12 @@ float tyreXPos[kTyreAmount] = {-60, -68, -76, 60, 68, 76, -60, -68, -76, 60, 68,
 float xPos[KCarAmount] = { -50.0f,   50.0f, -50.0f, 50.0f, -50.0f,   50.0f, -50.0f, 50.0f };
 float zPos[KCarAmount] = { 25.0f, 35.0f, 45.0f, 55.0f, 25.0f, 35.0f, 45.0f, 55.0f };
 
+struct SfrogStructure
+{
+
+};
+#include <iostream>
+
 void main()
 {
 	gameStates game = playing;
@@ -184,7 +194,7 @@ void main()
 	IMesh* islandTwoMesh = myEngine->LoadMesh("island2.x");
 	IMesh* dummy = myEngine->LoadMesh("Dummy.x");
 
-
+	srand(myEngine->Timer() * 100000);
 
 	IMesh* carMeshs[kCarTypes] = { myEngine->LoadMesh("transit.x") ,myEngine->LoadMesh("rover.x") ,myEngine->LoadMesh("pickUp.x") ,myEngine->LoadMesh("rangeRover.x") };
 
@@ -453,8 +463,9 @@ void main()
 					//dummyModel->ResetOrientation();
 					//dummyModel->AttachToParent(frog[currentFrog]);
 					//frog[currentFrog]->MoveX(-5);
+					frogDesiredXLocation += 10;
 					currentFrogMovement = Left;
-					FrogMovement(currentFrogMovement);
+					FrogMovement(currentFrogMovement, frogDesiredXLocation);
 					//frog[currentFrog]->RotateY(-90.0f);
 					//movingLeft = !movingLeft;
 
@@ -470,15 +481,17 @@ void main()
 					//frog[currentFrog]->RotateY(90);
 					//dummyModel->AttachToParent(frog[currentFrog]);
 					//dummyModel->ResetOrientation();
+					frogDesiredXLocation -= 10;
 					currentFrogMovement = Right;
-					FrogMovement(currentFrogMovement);
+					FrogMovement(currentFrogMovement, frogDesiredXLocation);
 					//frog[currentFrog]->MoveX(5);
 				}
 				else if (myEngine->KeyHit(MoveForward) || myEngine->KeyHit(Key_W))
 				{
 
+					frogDesiredZlocation += 10;
 					currentFrogMovement = Forward;
-					FrogMovement(currentFrogMovement);
+					FrogMovement(currentFrogMovement, frogDesiredZlocation);
 					//frog[currentFrog]->MoveLocalZ(0.1f * kGameSpeed);
 					//frog[currentFrog]->MoveZ(10.0f);
 					//frog[currentFrog]->MoveZ(0.01f * kGameSpeed);
@@ -487,8 +500,9 @@ void main()
 				{
 					//frog[currentFrog]->MoveZ(-10.0f);
 					//frog[currentFrog]->MoveZ(-(0.01f * kGameSpeed));
+					frogDesiredZlocation -= 10;
 					currentFrogMovement = Backward;
-					FrogMovement(currentFrogMovement);
+					FrogMovement(currentFrogMovement, frogDesiredZlocation);
 				}
 
 				if (myEngine->KeyHit(Escape))
@@ -938,30 +952,26 @@ void ResetCamera(I3DEngine* myEngine, ICamera* myCamera, IModel* dummyModel)
 	}
 }
 
-void FrogMovement(frogMovement currentFrogMovement)
+void FrogMovement(frogMovement currentFrogMovement, int locationAmount)
 {
 	switch (currentFrogMovement)
 	{
 	case Forward:
-		for (float i = 0; i <= 4; i++)
-		{
-			frog[currentFrog]->MoveZ(i);
-		}
-		break;
+		frog[currentFrog]->MoveZ(0.01f);
 	case Backward:
-		for (float i = 0; i <4; ++i)
+		for (float i = 0; i <= locationAmount; ++i)
 		{
 			frog[currentFrog]->MoveZ(-i);
 		}
 		break;
 	case Left:
-		for (float i = 0; i <5; ++i)
+		for (float i = 0; i <= locationAmount; ++i)
 		{
 			frog[currentFrog]->MoveX(-i);
 		}
 		break;
 	case Right:
-		for (float i = 0; i <5; ++i)
+		for (float i = 0; i <= locationAmount; ++i)
 		{
 			frog[currentFrog]->MoveX(i);
 		}
