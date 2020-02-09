@@ -28,7 +28,7 @@ basic
 - score 
 
 70%
-- frog slides 10 in the direction pressed
-- tyres should be floating along four lanes in groups of three
+- frog slides 10 in the direction pressed ✓
+- tyres should be floating along four lanes in groups of three ✓
 - add more traffic to the lanes ✓
 - add trees to the second island and collision detection ✓
