@@ -6,6 +6,7 @@
 #include <chrono>
 #include <thread>
 #include <stdlib.h>
+#include <iostream>
 using namespace tle;
 using namespace std;
 
@@ -17,6 +18,7 @@ const int kTreeAmount = 6;
 const int kTyreAmount = 12;
 IModel* car[KCarAmount];
 IModel* frog[kFrogAmount];
+IModel* tyres[kTyreAmount];
 const float frogSize = 0.5;
 const float frogRadius = 5.04487f * frogSize;
 const float frogDiameter = frogRadius * 2;
@@ -50,7 +52,6 @@ const float tyreSize = 10.0f;
 const float tyreSSpeed = 0.25f;
 const float tyreRadius = 0.45f * tyreSize;
 const float tyreDiameter = tyreRadius * 2;
-IModel* tyres[4];
 
 //boundary boxes for the tyres
 int numberOfCollisions = 0;
@@ -152,22 +153,22 @@ EKeyCode keyForCameraReset = Key_C;
 int randomCar = 0;
 
 
-//vehicle speed declarations
-float vehicleLane2Speed = 0.05f * kGameSpeed;
-float vehicleLane1Speed = (1.0f/2.0f) * vehicleLane2Speed;
-float vehicleLane3Speed = 1.5 * vehicleLane2Speed;
-float vehicleLane4Speed = 2 * vehicleLane2Speed;
+
 
 float tyreZPos[kTyreAmount] = {75, 75,  75, 85, 85, 85, 95, 95, 95, 105, 105, 105};
 float tyreXPos[kTyreAmount] = {-60, -68, -76, 60, 68, 76, -60, -68, -76, 60, 68, 76};
 float xPos[KCarAmount] = { -50.0f,   50.0f, -50.0f, 50.0f, -50.0f,   50.0f, -50.0f, 50.0f };
 float zPos[KCarAmount] = { 25.0f, 35.0f, 45.0f, 55.0f, 25.0f, 35.0f, 45.0f, 55.0f };
 
+
+float vehicleLane2Speed = 0.05f * kGameSpeed;
+float vehicleLane1Speed = (1.0f / 2.0f) * vehicleLane2Speed;
+float vehicleLane3Speed = 1.5 * vehicleLane2Speed;
+float vehicleLane4Speed = 2 * vehicleLane2Speed;
 struct SfrogStructure
 {
 
 };
-#include <iostream>
 
 void main()
 {
@@ -356,6 +357,11 @@ void main()
 		myEngine->DrawScene();
 		ResetCamera(myEngine, myCamera, dummyModel);
 		float frameTime = myEngine->Timer();
+
+
+
+		//for (int i = 0; i < KCarAmount; ++i)
+		carLaneSpeeds[1] = vehicleLane2Speed = 0.05f * kGameSpeed * frameTime;
 		if (game == playing)
 		{
 			Timer(frameTime, GameOverFont, game);
@@ -749,7 +755,6 @@ void Timer(float frameTime, IFont* GameOverFont, gameStates gameplay)
 	time << "Time: " << timer;
 	GameOverFont->Draw(time.str(), 1125, 0);
 	time.str("");
-
 	if (timer < 0)
 	{
 		startTimer = 21;
