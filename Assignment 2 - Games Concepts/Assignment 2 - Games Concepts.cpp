@@ -160,7 +160,9 @@ EKeyCode keyForCameraReset = Key_C;
 
 int randomCar = 0;
 
+float frameTime;
 
+const int pauseTime = 2000;
 
 
 float tyreZPos[kTyreAmount] = {75, 75,  75, 85, 85, 85, 95, 95, 95, 105, 105, 105};
@@ -294,7 +296,6 @@ void main()
 			carLengthRadius[i] = 5.53402;
 			carWidthRadius[i] = 2.68256;
 		}
-		//(0 + (-(carXRange)), 0.0f, 25 + (i * 10));
 
 		car[i]->RotateY(carRotateRange);
 		carXRange *= -1;
@@ -356,17 +357,19 @@ void main()
 
 
 	//Main code for the running of the game
-	myEngine->Timer();
 	while (myEngine->IsRunning())
 	{
 		myEngine->DrawScene();
 		ResetCamera(myEngine, myCamera, dummyModel);
-		float frameTime = myEngine->Timer();
+		frameTime = myEngine->Timer();
 
+		vehicleLane1Speed *= frameTime;
+		vehicleLane2Speed *= frameTime;
+		vehicleLane3Speed *= frameTime;
+		vehicleLane4Speed *= frameTime;
 
 
 		//for (int i = 0; i < KCarAmount; ++i)
-		carLaneSpeeds[1] = vehicleLane2Speed = 0.05f * kGameSpeed * frameTime;
 		if (game == playing)
 		{
 			Timer(frameTime, GameOverFont, game);
@@ -380,7 +383,7 @@ void main()
 
 			if (currentFrogMovement == Forward)
 			{
-				frog[currentFrog].frogModel->MoveZ(0.035f);
+				frog[currentFrog].frogModel->MoveZ(0.35f);
 				if (frog[currentFrog].frogModel->GetZ() >= frogDesiredZlocation)
 				{
 					currentFrogMovement = Reset;
@@ -388,7 +391,7 @@ void main()
 			}
 			else if (currentFrogMovement == Backward)
 			{
-				frog[currentFrog].frogModel->MoveZ(-0.035f);
+				frog[currentFrog].frogModel->MoveZ(-0.35f);
 				if (frog[currentFrog].frogModel->GetZ() <= frogDesiredZlocation)
 				{
 					currentFrogMovement = Reset;
@@ -396,7 +399,7 @@ void main()
 			}
 			else if (currentFrogMovement == Left)
 			{
-				frog[currentFrog].frogModel->MoveX(-0.035f);
+				frog[currentFrog].frogModel->MoveX(-0.35f);
 				if (frog[currentFrog].frogModel->GetX() <= frogDesiredXLocation)
 				{
 					currentFrogMovement = Reset;
@@ -404,7 +407,7 @@ void main()
 			}
 			else if (currentFrogMovement == Right)
 			{
-				frog[currentFrog].frogModel->MoveX(0.035f);
+				frog[currentFrog].frogModel->MoveX(0.35f);
 				if (frog[currentFrog].frogModel->GetX() >= frogDesiredXLocation)
 				{
 					currentFrogMovement = Reset;
@@ -439,18 +442,6 @@ void main()
 					}
 				}
 			}
-
-			//for (int j = 0; j < 4; ++j)
-			//{
-			//	if (tyres[j]->GetX() <= -45)
-			//	{
-			//		tyres[j]->MoveX(vehicleLane4Speed);
-			//	}
-			//	else if (tyres[j]->GetX() >= 45)
-			//	{
-			//		tyres[j]->MoveX(-vehicleLane4Speed);
-			//	}
-			//}
 			if (collidedWithCar)
 			{
 				frog[currentFrog].frogModel->SetSkin("frog_red.jpg");
@@ -463,9 +454,6 @@ void main()
 				collidedWithCar = !collidedWithCar;
 				if (currentFrog > 2) game = over;
 			}
-
-
-			//GameDecisions(game);
 
 			if (myEngine->KeyHit(Pausing))
 			{
@@ -763,7 +751,7 @@ void Timer(float frameTime, IFont* GameOverFont, gameStates gameplay)
 	if (timer < 0)
 	{
 		startTimer = 21;
-		//frogStateIdentifier[currentFrog] = dead;
+		frogStateIdentifier[currentFrog] = dead;
 	}
 }
 
@@ -817,6 +805,7 @@ void CarMovement(carStates carStatesArray[KCarAmount])
 		}
 		else if (carStatesArray[i] == RightDownSlope)
 		{
+
 			if (car[i]->GetX() >= 75 || car[i]->GetY() <= -5)
 			{
 				carStatesArray[i] = RightUpSlope;
@@ -957,20 +946,9 @@ void CheckForCollision(frogDirections currentFrogDirection, SfrogStructure frog[
 						currentFrogDirection = MovingLeft;
 					}
 				}
-				//frog[currentFrog].frogModel->SetPosition(tyres[i]->GetX(), 0.0f, tyres[i]->GetZ());
-				//frog[currentFrog].frogModel->DetachFromParent();
-				//frog[currentFrog].frogModel->AttachToParent(tyres[i]);
-				//frog[currentFrog].frogModel->ResetScale();
-				//frog[currentFrog].frogModel->SetX(zPos[i]);
-				//frog[currentFrog].frogModel->SetX(xPos[i]);
-				//MoveAlongTyre(i, frog);//frog[currentFrog].frogModel);
-				//dummyModel->DetachFromParent();
-				//dummyModel->AttachToParent(tyres[currentFrog]);
-				//dummyModel->Scale(-10);
 			}
 			else
 			{
-				//dummyModel->DetachFromParent();
 				frogStateIdentifier[currentFrog] = dead;
 			}
 		}
@@ -1019,11 +997,6 @@ void ResetCamera(I3DEngine* myEngine, ICamera* myCamera, IModel* dummyModel)
 	{
 		dummyModel->RotateLocalX(-(incrementBy));
 		incrementBy = 0;
-		//myCamera->DetachFromParent();
-		////myCamera->ResetOrientation();
-		//myCamera->SetPosition(0, 60, -160);
-		//myCamera->RotateX(20);
-		//myCamera->AttachToParent(dummyModel);
 	}
 }
 

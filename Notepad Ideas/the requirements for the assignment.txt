@@ -1,4 +1,4 @@
-basic
+﻿basic
 - skybox ✓
 - floor ✓
 - island 1 ✓
@@ -9,11 +9,11 @@ basic
 40%
 -  each frog has its own state ✓
 - there is a game state ✓
-- frog slide along the world X and Z axis
+- frog slide along the world X and Z axis ✓
 - collision detection between the cars and frogs ✓
 
 50%
-- make the frog turn to the direction it is moving
+- make the frog turn to the direction it is moving 
 - add more vehicles to the other lanes ✓
 - vehicles should vanish off the road and wait 2 seconds before reappearing ✓
 - camera should rotate around frog ✓
@@ -21,7 +21,7 @@ basic
 60%
 - add second island ✓
 - frog must cross to second island ✓
-- if frog falls in water it dies 
+- if frog falls in water it dies ✓
 - add four tyres ✓
 - collsion detection for tyres ✓
 - count-down timer ✓
