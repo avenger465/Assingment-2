@@ -163,6 +163,7 @@ int randomCar = 0;
 float frameTime;
 
 const int pauseTime = 2000;
+int waitTime = 0;
 
 
 float tyreZPos[kTyreAmount] = {75, 75,  75, 85, 85, 85, 95, 95, 95, 105, 105, 105};
@@ -373,7 +374,7 @@ void main()
 		if (game == playing)
 		{
 			Timer(frameTime, GameOverFont, game);
-			DisplayScore(GameOverFont, 0);
+			DisplayScore(GameOverFont, score);
 	
 			if (frogStateIdentifier[frogOne] == dead && frogStateIdentifier[frogTwo] == dead && frogStateIdentifier[frogThree] == dead)
 			{
@@ -386,6 +387,7 @@ void main()
 				frog[currentFrog].frogModel->MoveZ(0.35f);
 				if (frog[currentFrog].frogModel->GetZ() >= frogDesiredZlocation)
 				{
+					score += 10;
 					currentFrogMovement = Reset;
 				}
 			}
@@ -792,12 +794,14 @@ void CarMovement(carStates carStatesArray[KCarAmount])
 		}
 		else if (carStatesArray[i] == LeftDownSlope)
 		{
-			if (car[i]->GetX() <= -75 || car[i]->GetY() <= -5)
+			if ((car[i]->GetX() <= -75 || car[i]->GetY() <= -5) && waitTime >= pauseTime)
 			{
+				waitTime = 0;
 				carStatesArray[i] = LeftUpSlope;
 			}
 			else
 			{
+				waitTime += 1;
 				car[i]->RotateZ(0.1f);
 				car[i]->MoveX(-0.01f);
 				car[i]->MoveY(-0.01f);
@@ -805,13 +809,15 @@ void CarMovement(carStates carStatesArray[KCarAmount])
 		}
 		else if (carStatesArray[i] == RightDownSlope)
 		{
-
-			if (car[i]->GetX() >= 75 || car[i]->GetY() <= -5)
+			//waitTime += 1
+			if ((car[i]->GetX() >= 75 || car[i]->GetY() <= -5) && waitTime >= pauseTime)
 			{
+				waitTime = 0;
 				carStatesArray[i] = RightUpSlope;
 			}
 			else
 			{
+				waitTime += 1;
 				car[i]->RotateZ(-0.1);
 				car[i]->MoveX(0.01f);
 				car[i]->MoveY(-0.01f);

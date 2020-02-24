@@ -1,8 +1,9 @@
-﻿  Assignment 2 - Games Concepts.cpp
-d:\users\jmills14\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(176): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-d:\users\jmills14\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(210): warning C4244: 'argument': conversion from 'float' to 'unsigned int', possible loss of data
-d:\users\jmills14\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(300): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
-d:\users\jmills14\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(310): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
-d:\users\jmills14\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(187): warning C4101: 'currentFrogRotation': unreferenced local variable
-  Assignment 2 - Games Concepts.vcxproj -> D:\Users\JMills14\Documents\GitHub\Assingment-2\Assignment 2 - Games Concepts\\Assignment 2 - Games ConceptsDebug.exe
-  Assignment 2 - Games Concepts.vcxproj -> D:\Users\JMills14\Documents\GitHub\Assingment-2\Assignment 2 - Games Concepts\\Assignment 2 - Games Concepts.pdb (Full PDB)
+﻿cl : Command line warning D9035: option 'Gm' has been deprecated and will be removed in a future release
+  Assignment 2 - Games Concepts.cpp
+c:\users\aveng\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(177): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\aveng\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(211): warning C4244: 'argument': conversion from 'float' to 'unsigned int', possible loss of data
+c:\users\aveng\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(301): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
+c:\users\aveng\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(311): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
+c:\users\aveng\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(188): warning C4101: 'currentFrogRotation': unreferenced local variable
+  Assignment 2 - Games Concepts.vcxproj -> C:\Users\aveng\Documents\GitHub\Assingment-2\Assignment 2 - Games Concepts\\Assignment 2 - Games ConceptsDebug.exe
+  Copying DLLs & shaders...
