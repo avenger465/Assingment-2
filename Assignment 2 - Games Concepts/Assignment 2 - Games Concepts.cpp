@@ -1,4 +1,5 @@
 // Assignment 2 - Games Concepts.cpp: A program using the TL-Engine
+//Jonathan Mills
 
 #include <sstream>
 #include <TL-Engine.h> // TL-Engine include file and namespace
@@ -40,13 +41,13 @@ int frogOne = 0, frogTwo = 1, frogThree = 2;
 float CountDown;
 float frogMovementOnTyreSpeed;
 
-//Enumerators for 
-enum frogState {waiting, crossing, safe, dead};
-enum frogDirections {MovingLeft, MovingRight, NotOnTyre};
-enum gameStates {playing, paused, over};
-enum carStates {CarGoingLeft, CarGoingRight, LeftDownSlope, RightDownSlope, LeftUpSlope, RightUpSlope};
-enum tyreStates {TyreGoingLeft, TyreGoingRight};
-enum frogMovement {Forward, Backward, Left, Right, Reset};
+//Enumerators for each object, so they each have a state
+enum frogState {waiting, crossing, safe, dead};//
+enum frogDirections {MovingLeft, MovingRight, NotOnTyre};//
+enum gameStates {playing, paused, over};//
+enum carStates {CarGoingLeft, CarGoingRight, LeftDownSlope, RightDownSlope, LeftUpSlope, RightUpSlope};//
+enum tyreStates {TyreGoingLeft, TyreGoingRight};//
+enum frogMovement {Forward, Backward, Left, Right, Reset};//
 
 int frogStateIdentifier[kFrogAmount];
 

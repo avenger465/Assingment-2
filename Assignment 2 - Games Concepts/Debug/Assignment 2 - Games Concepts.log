@@ -1,11 +1,2 @@
-﻿  Assignment 2 - Games Concepts.cpp
-d:\users\jmills14\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(224): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-d:\users\jmills14\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(323): warning C4244: 'argument': conversion from 'float' to 'unsigned int', possible loss of data
-d:\users\jmills14\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(420): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
-d:\users\jmills14\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(957): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-d:\users\jmills14\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(967): warning C4244: 'argument': conversion from 'float' to 'const int', possible loss of data
-d:\users\jmills14\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(1184): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\users\jmills14\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(1185): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-d:\users\jmills14\documents\github\assingment-2\assignment 2 - games concepts\assignment 2 - games concepts.cpp(1199): warning C4553: '==': operator has no effect; did you intend '='?
-  Assignment 2 - Games Concepts.vcxproj -> D:\Users\JMills14\Documents\GitHub\Assingment-2\Assignment 2 - Games Concepts\\Assignment 2 - Games ConceptsDebug.exe
-  Assignment 2 - Games Concepts.vcxproj -> D:\Users\JMills14\Documents\GitHub\Assingment-2\Assignment 2 - Games Concepts\\Assignment 2 - Games Concepts.pdb (Full PDB)
+﻿  Assignment 2 - Games Concepts.vcxproj -> C:\Users\aveng\Documents\GitHub\Assingment-2\Assignment 2 - Games Concepts\\Assignment 2 - Games ConceptsDebug.exe
+  Copying DLLs & shaders...
