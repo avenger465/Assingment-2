@@ -333,7 +333,7 @@ void main()
 	IModel* skyBoxModel = skyBoxMesh->CreateModel(0.0f, skyBoxY, 0.0f);
 	IModel* floorModel = floorMesh->CreateModel(0.0f, floorModelY, 0.0f);
 
-
+	//islandOneModel->SetSkin("Putin.jpg");
 	//creating the array of frogs being used
 	IMesh* frogMesh = myEngine->LoadMesh("frog.x");
 	for (int i = 0; i < kFrogAmount; ++i)
@@ -488,6 +488,7 @@ void main()
 	InitialGameStatesForFrogs();
 
 	//The running of the game, where the majority of the game logic occurs
+	//frog[currentFrog].frogModel->SetSkin("Putin.jpg");
 	while (myEngine->IsRunning())
 	{
 		myEngine->DrawScene();
