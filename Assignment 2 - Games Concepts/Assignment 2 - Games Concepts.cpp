@@ -305,7 +305,7 @@ void main()
 	myEngine->StartWindowed();
 
 	//loads the font with the type and size of the text
-	IFont* GameOverFont = myEngine->LoadFont("Comic Sans MS", textSize);
+	IFont* GameOverFont = myEngine->LoadFont("STENCIL STD", textSize);
 
 	//creating an array with all the car skins to be used later
 	string carModels[kCarType] = { "truck.bmp", "transit.bmp", "rover.bmp", "pickUp.bmp" };
@@ -342,6 +342,11 @@ void main()
 		frog[i].frogModel = frogMesh->CreateModel(frogStartX + (i*frogDiameter), 0.0f, frogStartZ);
 		frog[i].frogModel->Scale(frogSize);
 	}
+
+	//Loading the skins to be used later in the code
+	frog[0].frogModel->SetSkin(frogDeadSkin);
+	frog[0].frogModel->SetSkin(frogSafeSkin);
+	frog[0].frogModel->SetSkin("frog.jpg");
 	dummyModel->AttachToParent(frog[currentFrog].frogModel);
 
 	//Creating the array of cars being used
@@ -500,6 +505,11 @@ void main()
 		vehicleLane4Speed *= frameTime;
 
 		//Checks if the game state is currently in the playing mode
+		if (myEngine->KeyHit(EscapeKEY))
+		{
+
+			myEngine->Stop();
+		}
 		if (game == playing)
 		{
 			//Updates the frogs old coordinates to ensure it can be placed back again if needed
@@ -651,37 +661,9 @@ void main()
 					currentFrogMovement = Backward;
 				}
 
-				//Checks if the escapeKey has been pressed 
-				//and then ends the program
-				if (myEngine->KeyHit(EscapeKEY))
-				{
-
-					myEngine->Stop();
-				}
-
 				if (frogOnTyre)
 				{
-					if (currentFrogDirection == MovingLeft)
-					{
-
-						frog[currentFrog].frogModel->MoveX(-frogMovementOnTyreSpeed);
-						if (frog[currentFrog].frogModel->GetX() <= -50)
-						{
-
-							currentFrogDirection = MovingRight;
-						}
-					}
-
-					else if (currentFrogDirection == MovingRight)
-					{
-
-						frog[currentFrog].frogModel->MoveX(frogMovementOnTyreSpeed);
-						if (frog[currentFrog].frogModel->GetX() >= 50)
-						{
-
-							currentFrogDirection = MovingLeft;
-						}
-					}
+					
 				}
 
 				//Checks if the CameraRotationKey has been pressed and then moves the camera in the local X rotation by a set increment
@@ -827,12 +809,6 @@ void main()
 				}
 
 			}
-			//Checks if the escapeKey has been pressed and the ends the game
-			if (myEngine->KeyHit(EscapeKEY))
-			{
-
-				myEngine->Stop();
-			}
 
 		}
 		//Checks if the gameState is over
@@ -840,13 +816,7 @@ void main()
 		{
 			//Draws the game over font on the screen
 			GameOverFont->Draw("Game Over", gameOverX, gameOverY);
-
-			//Checks if the escapeKey has been pressed and the ends the game
-			if (myEngine->KeyHit(EscapeKEY))
-			{
-
-				myEngine->Stop();
-			}
+			DisplayScore(GameOverFont, score);
 		}
 	}
 
@@ -1172,10 +1142,6 @@ void CheckForCollision(frogDirections currentFrogDirection, SfrogStructure frog[
 	else if (frog[currentFrog].frogModel->GetZ() >= edgeOfIslandOneMaxZ && frog[currentFrog].frogModel->GetZ() <= edgeOfIlsandTwoMinZ &&
 			 frog[currentFrog].frogModel->GetX() >= edgeOfIslandsMinX && frog[currentFrog].frogModel->GetX() <= edgeOfIslandsMaxX)
 	{
-		if (frogOnTyre)
-		{
-			frog[currentFrog].frogModel->SetPosition(tyres[num]->GetX(), 0.0f, tyres[num]->GetZ());
-		}
 		frogOnTyre = false;
 		for (int i = 0; i < kTyreAmount; i++)
 		{
@@ -1186,9 +1152,8 @@ void CheckForCollision(frogDirections currentFrogDirection, SfrogStructure frog[
 			tyreMaxZ[i] = tyres[i]->GetZ() + 4.5;
 			if (CollisionWithTyre(tyreMinX[i], tyreMaxX[i], tyreMinZ[i], tyreMaxZ[i], frog))
 			{
-
-				frogOnTyre = true;
 				num = i;
+				frogOnTyre = true;
 				if (tyreStatesArray[i] == TyreGoingLeft)
 				{
 					currentFrogDirection = MovingLeft;
